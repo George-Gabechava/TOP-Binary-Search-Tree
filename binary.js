@@ -21,7 +21,6 @@ function Tree(array) {
     }
     // Add value to an array
     unsortedArray.push(val);  
-    console.log("unsorted", this.unsortedArray);
 
     // To insert value under root: Go Left if val smaller, Go right if val bigger.
     currentNode = root;
@@ -30,7 +29,6 @@ function Tree(array) {
       if (val > currentNode.root && currentNode.right == null) {
         // Insert to the right
         currentNode.right = Node(val);
-        console.log("something inserted");
         break;
       }
       if (val > currentNode.root && currentNode.right != null) {
@@ -41,7 +39,6 @@ function Tree(array) {
       if (val < currentNode.root && currentNode.left == null) {
         // Insert to the left
         currentNode.left = Node(val);
-        console.log("something inserted");
         break;
       }
       if (val < currentNode.root && currentNode.left != null) {
@@ -57,11 +54,17 @@ function Tree(array) {
       throw new Error("Value does not exist in array");
     }
 
+    // Remove value from array
+    let indexSlice = this.unsortedArray.indexOf(val);
+    let array1 = this.unsortedArray.slice(0,indexSlice);
+    let array2 = this.unsortedArray.slice(indexSlice+1);
+    this.unsortedArray = array1.concat(array2);
+
     // Find the location of the val
-    parentNode = null;
+    let parentNode = null;
+    let toReplaceNode = null;
     currentNode = root;
     while (true) {
-      console.log("pathing", currentNode);
       if (val == currentNode.root) {
         // Value has been found.
         break;
@@ -70,49 +73,94 @@ function Tree(array) {
         // Go right
         parentNode = currentNode;
         currentNode = currentNode.right;
+        toReplaceNode = parentNode.right;
       }
       if (val < currentNode.root) {
         // Go left
         parentNode = currentNode;
         currentNode = currentNode.left;
+        toReplaceNode = parentNode.left;
       }
     }
-
-    console.log("found", currentNode);
-    console.log("parent", parentNode);
-
-    // Find out if the value has children and a parent:
-    if (parentNode) {
+    // Find out if the value has children:
     // if not, just set value as null
-      if (currentNode.left == null && currentNode.right == null) {
-        parentNode.left == null;
-        parentNode.right == null;
-        return;
-      }
+    if (currentNode.left == null && currentNode.right == null) {
+      parentNode.left = null;
+      parentNode.right = null;
+      return;
+    }
 
-      // if it has one, replace it with the child
-      if (currentNode.left == null && currentNode.right != null) {
-        parentNode == currentNode.right || currentNode.left;
-        return;
-      }
+    // if it has one, replace it with the child
+    if (currentNode.left == null && currentNode.right != null) {
+      tmp = currentNode.right;
+      currentNode.right = null;
+      parentNode.left = tmp;
+      return;
+    }
+    if (currentNode.left != null && currentNode.right == null) {
+      tmp = currentNode.left;
+      currentNode.left = null;
+      toReplaceNode = tmp;
+      return;
+    }
 
-      if (currentNode.left != null && currentNode.right == null) {
-        parentNode == currentNode.right || currentNode.left;
-        return;
+    // if it has two, we want next biggest, so:
+    // (Might need recursion?)
+    if (currentNode.left != null && currentNode.right != null) {
+      console.log("Helloooo?");
+      let nodeToReplace = currentNode;
+      // Go right once
+      currentNode = currentNode.right;
+      // Keep going left until you can't anymore
+      while (currentNode.left) {
+        currentNode = currentNode.left;
       }
+      // Need to bring this node up and also make it's parent.left node null  
+      let tmp = currentNode.root;
+      deleteValue(currentNode.root);  
+      nodeToReplace.root = tmp;
+      return;
+    }
+  }
 
-      // if it has two, curse the gods, and do the following:
-      if (currentNode.left != null && currentNode.right != null) {
-        
-        return;
+  const find = (val) => {
+    // Check if val is in BST array
+    if (!this.unsortedArray.includes(val)) {
+      throw new Error("Value does not exist in array");
+    }
+    // Search for val starting with root
+    currentNode = root;
+    while (true) {
+      if (val == currentNode.root) {
+        // Value has been found.
+        return currentNode;
+      }
+      if (val > currentNode.root) {
+        // Go right
+        currentNode = currentNode.right;
+      }
+      if (val < currentNode.root) {
+        // Go left
+        currentNode = currentNode.left;
       }
     }
+  }
+
+  // Traverse the tree in breadth-first level order
+  // May be implemented using either iteration or reursion
+  // Should return an array of values if no callback is given as an argument
+  // You may want to use an array acting as a queue to keep track of all the child nodes
+  const levelOrder = (arg) => {
+    
+    
   }
 
   return {
     root,
     insertValue,
-    deleteValue
+    deleteValue,
+    find,
+    levelOrder
   }
 }
 
@@ -153,17 +201,14 @@ let mySortedArray = sortArray(myArray);
 console.log("mySorted", mySortedArray);
 
 myTree = Tree(myArray);
-console.log(myTree);
+// console.log(myTree);
 
-myTree.insertValue(6);
+// myTree.insertValue(6);
+// console.log(myTree.root);
+
+// myTree.deleteValue(4);
+console.log("test", myTree.find(23));
 console.log(myTree.root);
-
-myTree.deleteValue(7);
-console.log(myTree.root);
-
-
-
-
 
 // Supposed to be visual tree
 const prettyPrint = (node, prefix = "", isLeft = true) => {
