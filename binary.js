@@ -147,20 +147,199 @@ function Tree(array) {
   }
 
   // Traverse the tree in breadth-first level order
-  // May be implemented using either iteration or reursion
+  // Accepts a random optional callback function that performs an operation on each node following the order in which they are traversed.
   // Should return an array of values if no callback is given as an argument
-  // You may want to use an array acting as a queue to keep track of all the child nodes
-  const levelOrder = (arg) => {
+  const levelOrder = (callbackFunc, node) => {
+    if (node === null || node === undefined) {
+      node = root;
+    }
+    let queue = [node];
+    let output = [];
+    // So long as the queue has a node:
+    while (queue.length > 0) {
+      if (queue[0].left) {
+        queue.push(queue[0].left);
+      }
+      if (queue[0].right) {
+        queue.push(queue[0].right);
+      }
+      // CB Func
+      let value = queue[0].root;
+      if (callbackFunc) {
+        value = callbackFunc(value);
+      }
+      output.push(value);
+      queue.shift();
+    }
+    return output;
+  }
+
+  // inorder starts at bottom left, then parent, then children of that parent
+  let inOrderList = [];
+  const inOrder = (callbackFunc, node) => {
+    if (node === null || node === undefined) {
+      node = root;
+    }
+    // So long as the queue has a node:
+    if (node.left) {
+      inOrder(callbackFunc, node.left);
+    }
+
+    // If there's a callback function:
+    let value = node.root; 
+    if (callbackFunc) {
+      value = callbackFunc(node.root);
+    }
+
+    inOrderList.push(value);
+
+    if (node.right) {
+      inOrder(callbackFunc, node.right);
+    }
     
+    return inOrderList;
     
   }
+
+  // preorder starts at root then goes to bottom left, then children of bottom parent
+  const preOrder = (callbackFunc, node) => {
+    if (node === null || node === undefined) {
+      node = root;
+    }
+
+    // If there's a callback function:
+    let value = node.root; 
+    if (callbackFunc) {
+      value = callbackFunc(node.root);
+    }
+
+    inOrderList.push(value);
+
+    // So long as the queue has a node:
+    if (node.left) {
+      preOrder(callbackFunc, node.left);
+    }
+    
+    if (node.right) {
+      preOrder(callbackFunc, node.right);
+    }
+    return inOrderList;
+  }
+
+  // postoder starts at bottom left, then does children of that parent, then does parent
+  const postOrder = (callbackFunc, node) => {
+    if (node === null || node === undefined) {
+      node = root;
+    }
+    // So long as the queue has a node:
+    if (node.left) {
+      postOrder(callbackFunc, node.left);
+    }
+
+    if (node.right) {
+      postOrder(callbackFunc, node.right);
+    }
+
+    // If there's a callback function:
+    let value = node.root; 
+    if (callbackFunc) {
+      value = callbackFunc(node.root);
+    }
+
+    inOrderList.push(value);
+
+    return inOrderList;    
+  }
+
+  const height = (val) => {
+    // Check if val is in BST array
+    if (!this.unsortedArray.includes(val)) {
+      throw new Error("Value does not exist in array");
+    }
+    // Search for val starting with root
+    currentNode = root;
+    while (true) {
+      if (val == currentNode.root) {
+        // Value has been found. Check for children.
+        return levelOrder("",currentNode).length;
+      }
+      if (val > currentNode.root) {
+        // Go right
+        currentNode = currentNode.right;
+      }
+      if (val < currentNode.root) {
+        // Go left
+        currentNode = currentNode.left;
+      }
+    }
+  }
+
+  const depth = (val) => {
+    // Check if val is in BST array
+    if (!this.unsortedArray.includes(val)) {
+      throw new Error("Value does not exist in array");
+    }
+    // Search for val starting with root
+    currentNode = root;
+    let count = 0;
+    while (true) {
+      if (val == currentNode.root) {
+        // Value has been found.
+        return count;
+      }
+      if (val > currentNode.root) {
+        // Go right
+        count ++;
+        currentNode = currentNode.right;
+      }
+      if (val < currentNode.root) {
+        // Go left
+        count ++;
+        currentNode = currentNode.left;
+      }
+    }
+  }
+
+  const isBalanced = () => {
+    // Check height of left subtree
+    let leftHeight = height(root.left.root);
+    // Check height of right subtree
+    let rightHeight = height(root.right.root);
+
+    // Check difference
+    let difference = leftHeight - rightHeight;
+    if (difference === 1 || difference === -1 || difference === 0) {
+      return true;
+    }
+    return false;
+  }
+
+  // Rebalanec an unbalanced tree;
+  const rebalance = () => {
+    // Check if balanced
+    if (isBalanced === true) {
+      throw new Error("Tree is already balanced.");
+    }
+
+    let newTree = Tree(this.unsortedArray);
+    console.log("new is bal", newTree.isBalanced());
+    return newTree.root;
+  }
+
 
   return {
     root,
     insertValue,
     deleteValue,
     find,
-    levelOrder
+    levelOrder,
+    inOrder,
+    preOrder,
+    postOrder,
+    height,
+    depth,
+    isBalanced,
+    rebalance
   }
 }
 
@@ -196,19 +375,24 @@ function sortArray(array) {
   return sorted;
 }
 
-myArray = [1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324];
+let myArray = [1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324];
 let mySortedArray = sortArray(myArray);
 console.log("mySorted", mySortedArray);
 
 myTree = Tree(myArray);
-// console.log(myTree);
 
-// myTree.insertValue(6);
-// console.log(myTree.root);
+function exampleCallback(val) {
+  return val + 1;
+}
+myTree.insertValue(111);
+myTree.insertValue(122);
+console.log("test", myTree.rebalance());
+console.log("root", myTree.root);
+console.log("bal", myTree.isBalanced());
 
-// myTree.deleteValue(4);
-console.log("test", myTree.find(23));
-console.log(myTree.root);
+
+
+
 
 // Supposed to be visual tree
 const prettyPrint = (node, prefix = "", isLeft = true) => {
@@ -223,3 +407,5 @@ const prettyPrint = (node, prefix = "", isLeft = true) => {
     prettyPrint(node.left, `${prefix}${isLeft ? "    " : "│   "}`, true);
   }
 };
+
+export default Tree;
