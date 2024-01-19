@@ -7,12 +7,13 @@ function Node(data, leftValue, rightValue) {
 }
 
 function Tree(array) {
-  // Not sure what this function is for yet...
-  this.sortedArray = sortArray(array);
-  this.unsortedArray = array;
+  // Not sure what function is for yet...
+  
+  let sortedArray = sortArray(array);
+  let unsortedArray = array;
 
   let root = null;
-  if(array) root = this.buildTree(this.sortedArray);
+  if(array) root = buildTree(sortedArray);
 
   const insertValue = (val) => {
     // code should check for duplicates then do an insert, but where?
@@ -23,7 +24,7 @@ function Tree(array) {
     unsortedArray.push(val);  
 
     // To insert value under root: Go Left if val smaller, Go right if val bigger.
-    currentNode = root;
+    let currentNode = root;
 
     while (true) {
       if (val > currentNode.root && currentNode.right == null) {
@@ -50,15 +51,15 @@ function Tree(array) {
 
   const deleteValue = (val) => {
     // First find if val exists
-    if (!this.unsortedArray.includes(val)) {
+    if (!unsortedArray.includes(val)) {
       throw new Error("Value does not exist in array");
     }
 
     // Remove value from array
-    let indexSlice = this.unsortedArray.indexOf(val);
-    let array1 = this.unsortedArray.slice(0,indexSlice);
-    let array2 = this.unsortedArray.slice(indexSlice+1);
-    this.unsortedArray = array1.concat(array2);
+    let indexSlice = unsortedArray.indexOf(val);
+    let array1 = unsortedArray.slice(0,indexSlice);
+    let array2 = unsortedArray.slice(indexSlice+1);
+    unsortedArray = array1.concat(array2);
 
     // Find the location of the val
     let parentNode = null;
@@ -115,7 +116,7 @@ function Tree(array) {
       while (currentNode.left) {
         currentNode = currentNode.left;
       }
-      // Need to bring this node up and also make it's parent.left node null  
+      // Need to bring node up and also make it's parent.left node null  
       let tmp = currentNode.root;
       deleteValue(currentNode.root);  
       nodeToReplace.root = tmp;
@@ -125,7 +126,7 @@ function Tree(array) {
 
   const find = (val) => {
     // Check if val is in BST array
-    if (!this.unsortedArray.includes(val)) {
+    if (!unsortedArray.includes(val)) {
       throw new Error("Value does not exist in array");
     }
     // Search for val starting with root
@@ -202,6 +203,7 @@ function Tree(array) {
   }
 
   // preorder starts at root then goes to bottom left, then children of bottom parent
+  let preOrderList = [];
   const preOrder = (callbackFunc, node) => {
     if (node === null || node === undefined) {
       node = root;
@@ -213,7 +215,7 @@ function Tree(array) {
       value = callbackFunc(node.root);
     }
 
-    inOrderList.push(value);
+    preOrderList.push(value);
 
     // So long as the queue has a node:
     if (node.left) {
@@ -223,10 +225,11 @@ function Tree(array) {
     if (node.right) {
       preOrder(callbackFunc, node.right);
     }
-    return inOrderList;
+    return preOrderList;
   }
 
   // postoder starts at bottom left, then does children of that parent, then does parent
+  let postOrderList = [];
   const postOrder = (callbackFunc, node) => {
     if (node === null || node === undefined) {
       node = root;
@@ -246,18 +249,18 @@ function Tree(array) {
       value = callbackFunc(node.root);
     }
 
-    inOrderList.push(value);
+    postOrderList.push(value);
 
-    return inOrderList;    
+    return postOrderList;    
   }
 
   const height = (val) => {
     // Check if val is in BST array
-    if (!this.unsortedArray.includes(val)) {
+    if (!unsortedArray.includes(val)) {
       throw new Error("Value does not exist in array");
     }
     // Search for val starting with root
-    currentNode = root;
+    let currentNode = root;
     while (true) {
       if (val == currentNode.root) {
         // Value has been found. Check for children.
@@ -276,7 +279,7 @@ function Tree(array) {
 
   const depth = (val) => {
     // Check if val is in BST array
-    if (!this.unsortedArray.includes(val)) {
+    if (!unsortedArray.includes(val)) {
       throw new Error("Value does not exist in array");
     }
     // Search for val starting with root
@@ -321,11 +324,9 @@ function Tree(array) {
       throw new Error("Tree is already balanced.");
     }
 
-    let newTree = Tree(this.unsortedArray);
-    console.log("new is bal", newTree.isBalanced());
-    return newTree.root;
+    let newTree = Tree(unsortedArray);
+    return newTree;
   }
-
 
   return {
     root,
@@ -342,7 +343,6 @@ function Tree(array) {
     rebalance
   }
 }
-
 
 function buildTree(array) {
   let sortedArray = sortArray(array);
@@ -375,37 +375,4 @@ function sortArray(array) {
   return sorted;
 }
 
-let myArray = [1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324];
-let mySortedArray = sortArray(myArray);
-console.log("mySorted", mySortedArray);
-
-myTree = Tree(myArray);
-
-function exampleCallback(val) {
-  return val + 1;
-}
-myTree.insertValue(111);
-myTree.insertValue(122);
-console.log("test", myTree.rebalance());
-console.log("root", myTree.root);
-console.log("bal", myTree.isBalanced());
-
-
-
-
-
-// Supposed to be visual tree
-const prettyPrint = (node, prefix = "", isLeft = true) => {
-  if (node === null) {
-    return;
-  }
-  if (node.right !== null) {
-    prettyPrint(node.right, `${prefix}${isLeft ? "│   " : "    "}`, false);
-  }
-  console.log(`${prefix}${isLeft ? "└── " : "┌── "}${node.data}`);
-  if (node.left !== null) {
-    prettyPrint(node.left, `${prefix}${isLeft ? "    " : "│   "}`, true);
-  }
-};
-
-export default Tree;
+export default Tree; 
